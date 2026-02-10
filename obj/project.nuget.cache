@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "dgSpecHash": "hnys5+JJBpQ=",
+  "success": true,
+  "projectFilePath": "C:\\Users\\davec\\OneDrive\\Documentos\\TimeTracker\\TimeTracker.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\davec\\.nuget\\packages\\questpdf\\2025.12.2\\questpdf.2025.12.2.nupkg.sha512"
+  ],
+  "logs": []
+}

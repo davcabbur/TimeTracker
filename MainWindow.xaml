@@ -1,0 +1,285 @@
+﻿<Window x:Class="TimeTracker.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="clr-namespace:TimeTracker.ViewModels"
+        Title="Time Tracker - Análisis de Productividad" 
+        Height="900" Width="1400"
+        WindowStartupLocation="CenterScreen"
+        Background="#F0F0F0">
+
+    <Window.DataContext>
+        <vm:MainViewModel/>
+    </Window.DataContext>
+
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Parte de arriba con el titulo -->
+        <Border Grid.Row="0" Background="#2196F3" Padding="16" CornerRadius="5" Margin="0,0,0,20">
+            <TextBlock Text="⏱️ Time Tracker - Análisis de Productividad" 
+                      FontSize="24" FontWeight="Bold" Foreground="White"/>
+        </Border>
+
+        <!-- Numeritos importantes -->
+        <Border Grid.Row="1" Background="White" Padding="16" Margin="0,0,0,20" BorderBrush="#E0E0E0" BorderThickness="1" CornerRadius="5">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <Border Grid.Column="0" Style="{StaticResource IndicatorCardStyle}" Background="#E3F2FD">
+                    <StackPanel>
+                        <TextBlock Text="TOTAL HORAS TRABAJADAS" FontWeight="Bold" FontSize="11" Foreground="#1565C0" Margin="0,0,0,8"/>
+                        <TextBlock FontSize="28" FontWeight="Bold" Foreground="#0D47A1">
+                            <Run Text="{Binding TotalHoras, StringFormat='{}{0:F1}'}"/>
+                            <Run Text=" hrs" FontSize="16"/>
+                        </TextBlock>
+                    </StackPanel>
+                </Border>
+
+                <Border Grid.Column="1" Style="{StaticResource IndicatorCardStyle}" Background="#F3E5F5">
+                    <StackPanel>
+                        <TextBlock Text="PROYECTO CON MÁS HORAS" FontWeight="Bold" FontSize="11" Foreground="#7B1FA2" Margin="0,0,0,8"/>
+                        <TextBlock Text="{Binding ProyectoConMasHoras}" FontSize="18" FontWeight="SemiBold" Foreground="#6A1B9A" TextTrimming="CharacterEllipsis"/>
+                    </StackPanel>
+                </Border>
+
+                <Border Grid.Column="2" Style="{StaticResource IndicatorCardStyle}" Background="#E8F5E9">
+                    <StackPanel>
+                        <TextBlock Text="TAREA CON MÁS HORAS" FontWeight="Bold" FontSize="11" Foreground="#388E3C" Margin="0,0,0,8"/>
+                        <TextBlock Text="{Binding TareaConMasHoras}" FontSize="18" FontWeight="SemiBold" Foreground="#2E7D32" TextTrimming="CharacterEllipsis"/>
+                    </StackPanel>
+                </Border>
+            </Grid>
+        </Border>
+
+        <!-- Para buscar cosas -->
+        <Border Grid.Row="2" Background="White" Padding="16" Margin="0,0,0,20" BorderBrush="#E0E0E0" BorderThickness="1" CornerRadius="5">
+            <StackPanel>
+                <TextBlock Text="FILTROS" FontWeight="Bold" FontSize="14" Margin="0,0,0,12" Foreground="#2196F3"/>
+                
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="2*"/>
+                        <ColumnDefinition Width="2*"/>
+                        <ColumnDefinition Width="2*"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Grid.Column="0" Margin="0,0,10,0">
+                        <TextBlock Text="Proyecto" FontSize="12" Margin="0,0,0,5"/>
+                        <ComboBox ItemsSource="{Binding Proyectos}" SelectedItem="{Binding ProyectoSeleccionado}" Height="30"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="1" Margin="5,0">
+                        <TextBlock Text="Fecha Desde" FontSize="12" Margin="0,0,0,5"/>
+                        <DatePicker SelectedDate="{Binding FechaDesde}" Height="30"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="2" Margin="5,0,10,0">
+                        <TextBlock Text="Fecha Hasta" FontSize="12" Margin="0,0,0,5"/>
+                        <DatePicker SelectedDate="{Binding FechaHasta}" Height="30"/>
+                    </StackPanel>
+
+                    <Button Grid.Column="3" Content="APLICAR FILTROS" Command="{Binding AplicarFiltrosCommand}"
+                           Height="35" Padding="20,0" Margin="10,22,10,0" Background="#2196F3" Foreground="White" FontWeight="Bold" BorderThickness="0"/>
+
+                    <Button Grid.Column="4" Content="📄 EXPORTAR PDF" Command="{Binding ExportarPdfCommand}"
+                           Height="35" Padding="20,0" Margin="0,22,0,0" Background="#00BCD4" Foreground="White" FontWeight="Bold" BorderThickness="0"/>
+                </Grid>
+            </StackPanel>
+        </Border>
+
+        <!-- Lo gordo de la pantalla con pestañas -->
+        <TabControl Grid.Row="3" Background="White">
+            
+            <!-- Tab 1: La lista de horas -->
+            <TabItem Header="📋 Registros">
+                <Border Background="White" Padding="16" Margin="10">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        
+                        <TextBlock Grid.Row="0" Text="Todos los Registros de Tiempo" Style="{StaticResource SubHeaderTextStyle}" Margin="0,0,0,16"/>
+                        
+                        <DataGrid Grid.Row="1" ItemsSource="{Binding RegistrosTiempo}" AutoGenerateColumns="False" IsReadOnly="True"
+                                 CanUserAddRows="False" CanUserDeleteRows="False" CanUserSortColumns="True" AlternatingRowBackground="#F5F5F5">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Proyecto" Binding="{Binding Proyecto}" Width="*"/>
+                                <DataGridTextColumn Header="Tarea" Binding="{Binding Tarea}" Width="*"/>
+                                <DataGridTextColumn Header="Fecha" Binding="{Binding Fecha, StringFormat='dd/MM/yyyy'}" Width="Auto"/>
+                                <DataGridTextColumn Header="Horas" Binding="{Binding Horas, StringFormat='{}{0:F1}'}" Width="Auto"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </Grid>
+                </Border>
+            </TabItem>
+
+            <!-- Tab 2: Resumen de los proyectos (arriba y abajo) -->
+            <TabItem Header="📁 Proyectos &amp; Tareas">
+                <Grid Margin="10">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- Lista de arriba: Proyectos -->
+                    <Border Grid.Row="0" Background="White" Padding="16" Margin="0,0,0,10">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+                            
+                            <TextBlock Grid.Row="0" Text="Resumen por Proyecto (Seleccione para ver detalle)" Style="{StaticResource SubHeaderTextStyle}" Margin="0,0,0,16"/>
+                            
+                            <DataGrid Grid.Row="1" ItemsSource="{Binding ResumenesProyecto}" SelectedItem="{Binding ProyectoSeleccionadoParaTareas, Mode=TwoWay}"
+                                     AutoGenerateColumns="False" IsReadOnly="True" CanUserAddRows="False" CanUserDeleteRows="False"
+                                     CanUserSortColumns="True" SelectionMode="Single" AlternatingRowBackground="#F5F5F5">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="Proyecto" Binding="{Binding Proyecto}" Width="*"/>
+                                    <DataGridTextColumn Header="Total Horas" Binding="{Binding TotalHoras, StringFormat='{}{0:F1}'}" Width="Auto"/>
+                                    <DataGridTextColumn Header="Nº Tareas" Binding="{Binding NumeroDeTareas}" Width="Auto"/>
+                                    <DataGridTextColumn Header="Nº Registros" Binding="{Binding NumeroDeRegistros}" Width="Auto"/>
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </Grid>
+                    </Border>
+
+                    <GridSplitter Grid.Row="1" Height="5" HorizontalAlignment="Stretch" Background="#E0E0E0" ShowsPreview="True"/>
+
+                    <!-- Lista de abajo: Tareas del proyecto -->
+                    <Border Grid.Row="2" Background="White" Padding="16" Margin="0,10,0,0">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+                            
+                            <TextBlock Grid.Row="0" Text="Detalle de Tareas" Style="{StaticResource SubHeaderTextStyle}" Margin="0,0,0,8"/>
+                            
+                            <TextBlock Grid.Row="1" Margin="0,0,0,16">
+                                <Run Text="Proyecto seleccionado: "/>
+                                <Run Text="{Binding ProyectoSeleccionadoParaTareas.Proyecto, FallbackValue='Ninguno'}" FontWeight="Bold" Foreground="#2196F3"/>
+                            </TextBlock>
+                            
+                            <DataGrid Grid.Row="2" ItemsSource="{Binding ResumenesTarea}" AutoGenerateColumns="False" IsReadOnly="True"
+                                     CanUserAddRows="False" CanUserDeleteRows="False" CanUserSortColumns="True" AlternatingRowBackground="#F5F5F5">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="Tarea" Binding="{Binding Tarea}" Width="*"/>
+                                    <DataGridTextColumn Header="Total Horas" Binding="{Binding TotalHoras, StringFormat='{}{0:F1}'}" Width="Auto"/>
+                                    <DataGridTextColumn Header="Nº Registros" Binding="{Binding NumeroRegistros}" Width="Auto"/>
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </Grid>
+                    </Border>
+                </Grid>
+            </TabItem>
+
+            <!-- Tab 4: Dibujitos estadisticos -->
+            <TabItem Header="📊 Gráficos">
+                <Grid Margin="10">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- Grafico de los proyectos -->
+                    <Border Grid.Row="0" Background="White" Padding="16" Margin="0,0,0,10" BorderBrush="#E0E0E0" BorderThickness="1">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+                            
+                            <TextBlock Grid.Row="0" Text="Horas por Proyecto" Style="{StaticResource SubHeaderTextStyle}" Margin="0,0,0,16"/>
+                            
+                            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                                <ItemsControl ItemsSource="{Binding DatosGraficoProyectos}" BorderThickness="0">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Grid Margin="0,5">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="150"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+                                                
+                                                <TextBlock Grid.Column="0" Text="{Binding Proyecto}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" ToolTip="{Binding Proyecto}" Margin="0,0,10,0"/>
+                                                
+                                                <!-- Bar Chart -->
+                                                <ProgressBar Grid.Column="1" Height="20" Minimum="0" Value="{Binding TotalHoras}" Maximum="{Binding DataContext.MaxHorasProyecto, RelativeSource={RelativeSource AncestorType=Window}}" 
+                                                             BorderThickness="0" Background="#F0F0F0" Foreground="#2196F3"/>
+                                                
+                                                <StackPanel Grid.Column="2" Orientation="Horizontal" Margin="10,0,0,0" MinWidth="50">
+                                                    <TextBlock FontWeight="Bold" Text="{Binding TotalHoras, StringFormat='{}{0:F1}'}"/>
+                                                    <TextBlock Text=" h" Foreground="Gray"/>
+                                                </StackPanel>
+                                            </Grid>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </ScrollViewer>
+                        </Grid>
+                    </Border>
+
+                    <!-- Grafico de las tareas de cada proyecto -->
+                    <Border Grid.Row="1" Background="White" Padding="16" Margin="0,10,0,0" BorderBrush="#E0E0E0" BorderThickness="1">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+                            
+                            <TextBlock Grid.Row="0" Margin="0,0,0,16" Style="{StaticResource SubHeaderTextStyle}">
+                                <Run Text="Distribución de Horas por Tarea"/>
+                                <Run Text=" - " FontSize="14"/>
+                                <Run Text="{Binding ProyectoSeleccionadoParaTareas.Proyecto, FallbackValue='Seleccione un proyecto'}" FontSize="14" FontWeight="Bold" Foreground="#2196F3"/>
+                            </TextBlock>
+                            
+                            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                                <ItemsControl ItemsSource="{Binding DatosGraficoTareas}" BorderThickness="0">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Grid Margin="0,5">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="150"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+                                                
+                                                <TextBlock Grid.Column="0" Text="{Binding Tarea}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" ToolTip="{Binding Tarea}" Margin="0,0,10,0"/>
+                                                
+                                                <!-- Bar Chart -->
+                                                <ProgressBar Grid.Column="1" Height="20" Minimum="0" Value="{Binding TotalHoras}" Maximum="{Binding DataContext.MaxHorasTarea, RelativeSource={RelativeSource AncestorType=Window}}" 
+                                                             BorderThickness="0" Background="#F0F0F0" Foreground="#4CAF50"/>
+                                                
+                                                <StackPanel Grid.Column="2" Orientation="Horizontal" Margin="10,0,0,0" MinWidth="50">
+                                                    <TextBlock FontWeight="Bold" Text="{Binding TotalHoras, StringFormat='{}{0:F1}'}"/>
+                                                    <TextBlock Text=" h" Foreground="Gray"/>
+                                                </StackPanel>
+                                            </Grid>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </ScrollViewer>
+                        </Grid>
+                    </Border>
+                </Grid>
+            </TabItem>
+            
+        </TabControl>
+    </Grid>
+</Window>
